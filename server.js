@@ -93,7 +93,18 @@ app.post('/api/books/', (req, res) => {
   /*
    * return the new book information object as json
    */
-  var newBook = {};
+  
+  var newBook = new db.books(
+    {
+      title:req.body.title,
+      author:req.body.author,
+      releaseDate:req.body.releaseDate,
+      genre:req.body.genre,
+      rating:req.body.rating,
+      language:req.body.language
+    }
+  );
+  newBook.save();
   res.json(newBook);
 });
 
