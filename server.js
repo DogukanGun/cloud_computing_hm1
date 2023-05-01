@@ -2,7 +2,7 @@
 const express = require('express');
 const app = express();
 // Express Body Parser
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Set Static File Directory
@@ -39,11 +39,12 @@ app.get('/api', (req, res) => {
     documentationUrl: '', //leave this also blank for the first exercise
     baseUrl: '', //leave this blank for the first exercise
     endpoints: [
-      {method: 'GET', path: '/api', description: 'Describes all available endpoints'},
-      {method: 'GET', path: '/api/profile', description: 'Data about me'},
-      {method: 'POST', path: '/api/books/', description: 'Get All books information'},
-      {method: 'PUT', path: '/api/books/:id', description: 'Update a book'},
-      {method: 'DELETE', path: '/api/books/:id', description: 'Delete a book'},
+      { method: 'GET', path: '/api', description: 'Describes all available endpoints' },
+      { method: 'GET', path: '/api/profile', description: 'Data about me' },
+      { method: 'GET', path: '/api/books/', description: 'Get All books information' },
+      { method: 'POST', path: '/api/books/', description: 'Add a book information into database' },
+      { method: 'PUT', path: '/api/books/:id', description: 'Update a book' },
+      { method: 'DELETE', path: '/api/books/:id', description: 'Delete a book' },
       // TODO: Write other API end-points description here like above
     ]
   })
@@ -52,13 +53,13 @@ app.get('/api', (req, res) => {
 app.get('/api/profile', (req, res) => {
   res.json({
     'name': 'group 33',
-    'homeCountry': 'Turkey',
+    'homeCountry': 'Türkiye',
     'degreeProgram': 'Informatics',//informatics or CSE.. etc
     'email': 'group33@gmail.com',
     'deployedURLLink': '',//leave this blank for the first exercise
     'apiDocumentationURL': '', //leave this also blank for the first exercise
-    'currentCity': 'Germany',
-    'hobbies': ["Blockchain","Basketball"]
+    'currentCity': 'Münich',
+    'hobbies': ["Blockchain", "Basketball"]
 
   })
 });
@@ -93,15 +94,15 @@ app.post('/api/books/', (req, res) => {
   /*
    * return the new book information object as json
    */
-  
+
   var newBook = new db.books(
     {
-      title:req.body.title,
-      author:req.body.author,
-      releaseDate:req.body.releaseDate,
-      genre:req.body.genre,
-      rating:req.body.rating,
-      language:req.body.language
+      title: req.body.title,
+      author: req.body.author,
+      releaseDate: req.body.releaseDate,
+      genre: req.body.genre,
+      rating: req.body.rating,
+      language: req.body.language
     }
   );
   newBook.save();
@@ -118,16 +119,18 @@ app.put('/api/books/:id', (req, res) => {
   const bookId = req.params.id;
   const bookNewData = req.body;
   console.log(`book ID = ${bookId} \n Book Data = ${bookNewData}`);
+  db.books.findByIdAndUpdate(bookId, bookNewData, { new: true }, function (err, updatedBookInfo) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+    } else {
+      res.json(updatedBookInfo);
+    }
+  });
 
-  /*
-   * TODO: use the books model and find using the bookId and update the book information
-   */
-  /*
-   * Send the updated book information as a JSON object
-   */
-  var updatedBookInfo = {};
-  res.json(updatedBookInfo);
-});
+}
+
+);
 /*
  * Delete a book based upon the specified ID
  */
@@ -143,8 +146,18 @@ app.delete('/api/books/:id', (req, res) => {
   /*
    * Send the deleted book information as a JSON object
    */
-  var deletedBook = {};
-  res.json(deletedBook);
+  db.books.findByIdAndDelete(bookId, (err, deletedBook) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ error: 'Could not delete book.' });
+    } else {
+      /*
+       * Send the deleted book information as a JSON object
+       */
+      res.json(deletedBook);
+    }
+  });
+  
 });
 
 
